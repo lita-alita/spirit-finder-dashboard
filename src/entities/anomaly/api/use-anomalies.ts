@@ -22,7 +22,7 @@ export const useDeploySquad = () => {
 
       if (previous) {
         queryClient.setQueryData<Anomaly[]>(anomaliesQueryKey, (old) =>
-          old?.map((item) => (item.id === id ? { ...item, status: 'deploying' } : item)) ?? [],
+          old?.map((item) => (item.id === id ? { ...item, status: 'captured' } : item)) ?? [],
         );
       }
 

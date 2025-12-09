@@ -14,6 +14,7 @@ const formatTime = (value: string) =>
 
 export const AnomalyMeta = ({ anomaly, className }: Props) => {
   const metaClass = className ? `${styles.meta} ${className}` : styles.meta;
+  const statusCopy = anomaly.status === 'captured' ? 'Captured' : 'Active';
 
   return (
     <dl className={metaClass}>
@@ -23,7 +24,7 @@ export const AnomalyMeta = ({ anomaly, className }: Props) => {
       </div>
       <div>
         <dt>Status</dt>
-        <dd className={styles.status}>{anomaly.status}</dd>
+        <dd className={styles.status}>{statusCopy}</dd>
       </div>
       <div>
         <dt>Last seen</dt>

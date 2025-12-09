@@ -6,7 +6,7 @@ export const anomalySchema = z.object({
   district: z.string(),
   energyLevel: z.number().int().nonnegative(),
   threatLevel: z.enum(['low', 'medium', 'high', 'critical']),
-  status: z.enum(['active', 'contained', 'deploying']),
+  status: z.enum(['active', 'captured']),
   lastSeenAt: z.string().datetime(),
   resolvedAt: z.string().datetime().optional(),
 });

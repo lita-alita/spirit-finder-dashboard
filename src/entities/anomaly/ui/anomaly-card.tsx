@@ -20,7 +20,7 @@ const threatCopy: Record<Anomaly['threatLevel'], string> = {
 
 export const AnomalyCard = ({ anomaly, onDeploy, highlight = false, disabled = false }: Props) => {
   const threatColor = styles[`threat-${anomaly.threatLevel}`] ?? styles['threat-low'];
-  const isBusy = disabled || anomaly.status === 'deploying' || anomaly.status === 'contained';
+  const isBusy = disabled || anomaly.status === 'captured';
   const cardClass = highlight ? `${styles.card} ${styles.fresh}` : styles.card;
 
   return (
@@ -50,11 +50,7 @@ export const AnomalyCard = ({ anomaly, onDeploy, highlight = false, disabled = f
           disabled={isBusy}
           onClick={() => onDeploy(anomaly.id)}
         >
-          {anomaly.status === 'deploying'
-            ? 'Deploying...'
-            : anomaly.status === 'contained'
-              ? 'Contained'
-              : 'Deploy strike squad'}
+          {anomaly.status === 'captured' ? 'Captured' : 'Capture'}
         </button>
       </div>
     </article>

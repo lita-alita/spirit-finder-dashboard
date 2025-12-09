@@ -17,7 +17,7 @@ const computeThreatLevel = (energy: number): AnomalyRecord['threatLevel'] => {
 };
 
 const driftEnergy = (anomaly: AnomalyRecord) => {
-  if (anomaly.status === 'contained') {
+  if (anomaly.status === 'captured') {
     anomaly.energyLevel = clamp(anomaly.energyLevel - 4, 0, 100);
     anomaly.threatLevel = computeThreatLevel(anomaly.energyLevel);
     return;
@@ -91,15 +91,9 @@ export const deploySquadToAnomaly = async (id: string): Promise<AnomalyRecord | 
     throw new Error('Sensor mesh link failed — squad dispatch aborted');
   }
 
-  target.status = 'deploying';
-
-  setTimeout(() => {
-    const found = anomalies.find((item) => item.id === id);
-    if (!found) return;
-    found.status = 'contained';
-    found.resolvedAt = new Date().toISOString();
-    removeAfterDelay(id, 20_000);
-  }, 5_000);
+  target.status = 'captured';
+  target.resolvedAt = new Date().toISOString();
+  removeAfterDelay(id, 20_000);
 
   return target;
 };
@@ -112,7 +106,7 @@ export const updateAnomalyStatus = async (
   if (!target) return null;
 
   target.status = status;
-  if (status === 'contained') {
+  if (status === 'captured') {
     target.resolvedAt = new Date().toISOString();
     removeAfterDelay(id, 20_000);
   } else {
@@ -121,5 +115,18 @@ export const updateAnomalyStatus = async (
 
   // Recompute threat to reflect current energy.
   target.threatLevel = computeThreatLevel(target.energyLevel);
+  return target;
+};
+
+export const randomThreatPulse = (): AnomalyRecord | null => {
+  if (!anomalies.length) return null;
+  const index = Math.floor(Math.random() * anomalies.length);
+  const target = anomalies[index];
+  if (!target) return null;
+
+  const delta = Math.floor(Math.random() * 30) - 10; // -10..+19
+  target.energyLevel = clamp(target.energyLevel + delta, 5, 100);
+  target.threatLevel = computeThreatLevel(target.energyLevel);
+  target.lastSeenAt = new Date().toISOString();
   return target;
 };

@@ -1,8 +1,8 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
-import { useAnomalies, useDeploySquad } from '@/entities/anomaly/api';
+import { useEffect, useMemo, useState } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { anomaliesQueryKey, useAnomalies, useDeploySquad } from '@/entities/anomaly/api';
 import { AnomalyCard } from '@/entities/anomaly/ui';
 import { pingSensorMesh } from '@/shared/api/sensors';
 import styles from '@/app/page.module.scss';
@@ -16,6 +16,7 @@ const formatTime = (value: Date | number | string) =>
 export const HomePage = () => {
   const { data = [], isPending, dataUpdatedAt, refetch } = useAnomalies();
   const { mutate: deploySquad, isPending: isDeploying } = useDeploySquad();
+  const queryClient = useQueryClient();
   const {
     mutate: pingSensors,
     isPending: isPinging,
@@ -38,26 +39,36 @@ export const HomePage = () => {
 
   const anomalies = useMemo(() => data, [data]);
 
-  const active = anomalies.filter((item) => item.status === 'active');
-  const deploying = anomalies.filter((item) => item.status === 'deploying');
-  const critical = anomalies.filter((item) => item.threatLevel === 'critical');
-  const highestEnergy = [...anomalies].sort((a, b) => b.energyLevel - a.energyLevel)[0];
-  const timeline = [...anomalies].sort(
-    (a, b) => new Date(b.lastSeenAt).getTime() - new Date(a.lastSeenAt).getTime(),
-  );
-  const sortedAnomalies = useMemo(() => {
-    if (sortMode === 'threat') {
-      const threatOrder: Record<string, number> = {
-        critical: 3,
-        high: 2,
-        medium: 1,
-        low: 0,
-      };
-      return [...anomalies].sort((a, b) => threatOrder[b.threatLevel] - threatOrder[a.threatLevel]);
-    }
-    return [...anomalies].sort(
+  const { active, captured, critical, highestEnergy, timeline, sortedAnomalies } = useMemo(() => {
+    const activeList = anomalies.filter((item) => item.status === 'active');
+    const capturedList = anomalies.filter((item) => item.status === 'captured');
+    const criticalList = anomalies.filter((item) => item.threatLevel === 'critical');
+    const highest = [...anomalies].sort((a, b) => b.energyLevel - a.energyLevel)[0];
+    const timeSorted = [...anomalies].sort(
       (a, b) => new Date(b.lastSeenAt).getTime() - new Date(a.lastSeenAt).getTime(),
     );
+
+    const sorted =
+      sortMode === 'threat'
+        ? [...anomalies].sort((a, b) => {
+            const threatOrder: Record<string, number> = {
+              critical: 3,
+              high: 2,
+              medium: 1,
+              low: 0,
+            };
+            return threatOrder[b.threatLevel] - threatOrder[a.threatLevel];
+          })
+        : timeSorted;
+
+    return {
+      active: activeList,
+      captured: capturedList,
+      critical: criticalList,
+      highestEnergy: highest,
+      timeline: timeSorted,
+      sortedAnomalies: sorted,
+    };
   }, [anomalies, sortMode]);
 
   const maybeShowGhost = () => {
@@ -78,15 +89,13 @@ export const HomePage = () => {
     setPendingId(id);
     deploySquad(id, {
       onSuccess: () => {
-        setNotice({ type: 'success', message: 'Squad deploying to target anomaly.' });
+        setNotice({ type: 'success', message: 'Anomaly captured successfully.' });
       },
       onError: (error) => {
         setNotice({
           type: 'error',
           message:
-            error instanceof Error
-              ? error.message
-              : 'Dispatch failed: sensor mesh unavailable. Try again.',
+            error instanceof Error ? error.message : 'Capture failed: sensor mesh unavailable.',
         });
       },
       onSettled: () => {
@@ -102,6 +111,28 @@ export const HomePage = () => {
   };
 
   const isBusy = isDeploying || isPending || isPinging;
+
+  useEffect(() => {
+    const source = new EventSource('/api/anomalies/stream');
+    source.onmessage = (event) => {
+      try {
+        const payload = JSON.parse(event.data);
+        queryClient.setQueryData(anomaliesQueryKey, (old: typeof anomalies | undefined) => {
+          if (!old) return old;
+          return old.map((item) => (item.id === payload.id ? { ...item, ...payload } : item));
+        });
+      } catch (error) {
+        console.error('Failed to parse SSE event', error);
+      }
+    };
+    source.onerror = () => {
+      source.close();
+      setTimeout(() => refetch(), 2000);
+    };
+    return () => {
+      source.close();
+    };
+  }, [queryClient, refetch]);
 
   return (
     <div className={styles.page}>
@@ -145,7 +176,7 @@ export const HomePage = () => {
               disabled={isBusy}
               onClick={handleQuickDeploy}
             >
-              Deploy strike squad
+              Capture anomaly
             </button>
             <button
               className={`${styles.button} ${styles.secondary}`}
@@ -177,11 +208,8 @@ export const HomePage = () => {
             </div>
           </div>
           <div className={styles.statCard}>
-            <p className={styles.statLabel}>Deploying squads</p>
-            <div className={styles.statValue}>
-              {deploying.length}
-              <span className={styles.statDelta}>ETA 08:00</span>
-            </div>
+            <p className={styles.statLabel}>Captured</p>
+            <div className={styles.statValue}>{captured.length}</div>
           </div>
           <div className={styles.statCard}>
             <p className={styles.statLabel}>Critical alerts</p>
@@ -264,7 +292,9 @@ export const HomePage = () => {
                     {entry.district} · {formatTime(entry.lastSeenAt)}
                   </span>
                 </div>
-                <span className={styles.status}>{entry.status}</span>
+                <span className={styles.status}>
+                  {entry.status === 'captured' ? 'Captured' : 'Active'}
+                </span>
               </div>
             ))}
           </div>
