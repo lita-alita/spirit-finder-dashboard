@@ -87,6 +87,10 @@ export const deploySquadToAnomaly = async (id: string): Promise<AnomalyRecord | 
   const target = anomalies.find((item) => item.id === id);
   if (!target) return null;
 
+  if (Math.random() < 0.3) {
+    throw new Error('Sensor mesh link failed — squad dispatch aborted');
+  }
+
   target.status = 'deploying';
 
   setTimeout(() => {

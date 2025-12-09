@@ -274,6 +274,28 @@
   }
 }
 
+.notice {
+  margin: 0 0 16px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(102, 231, 255, 0.08);
+  color: var(--text-primary);
+  backdrop-filter: blur(6px);
+}
+
+.noticeError {
+  border-color: rgba(255, 94, 199, 0.4);
+  background: rgba(255, 94, 199, 0.12);
+  color: #ffe5f5;
+}
+
+.noticeSuccess {
+  border-color: rgba(126, 242, 157, 0.4);
+  background: rgba(126, 242, 157, 0.12);
+  color: #e4ffe4;
+}
+
 .timeline {
   display: grid;
   gap: 12px;

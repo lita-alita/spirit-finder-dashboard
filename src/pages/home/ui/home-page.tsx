@@ -32,6 +32,9 @@ export const HomePage = () => {
   const [ghostKey, setGhostKey] = useState<number | null>(null);
   const [ghostYOffset, setGhostYOffset] = useState<number>(40);
   const [sortMode, setSortMode] = useState<'recent' | 'threat'>('recent');
+  const [notice, setNotice] = useState<{ type: 'error' | 'success'; message: string } | null>(
+    null,
+  );
 
   const anomalies = useMemo(() => data, [data]);
 
@@ -74,6 +77,18 @@ export const HomePage = () => {
     maybeShowGhost();
     setPendingId(id);
     deploySquad(id, {
+      onSuccess: () => {
+        setNotice({ type: 'success', message: 'Squad deploying to target anomaly.' });
+      },
+      onError: (error) => {
+        setNotice({
+          type: 'error',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Dispatch failed: sensor mesh unavailable. Try again.',
+        });
+      },
       onSettled: () => {
         setPendingId(null);
         refetch();
@@ -102,6 +117,16 @@ export const HomePage = () => {
           </div>
         ) : null}
       </div>
+      {notice ? (
+        <div
+          className={`${styles.notice} ${
+            notice.type === 'error' ? styles.noticeError : styles.noticeSuccess
+          }`}
+          role="status"
+        >
+          {notice.message}
+        </div>
+      ) : null}
       <section className={`${styles.shell} ${styles.masthead}`}>
         <div className={styles.masthead__top}>
           <div className={styles.brand}>
