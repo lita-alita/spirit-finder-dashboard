@@ -1,0 +1,53 @@
+:root {
+  --bg-base: #06080f;
+  --bg-panel: rgba(14, 19, 35, 0.8);
+  --bg-glass: rgba(10, 15, 29, 0.6);
+  --border: rgba(102, 231, 255, 0.16);
+  --border-strong: rgba(255, 94, 199, 0.32);
+  --text-primary: #e8f6ff;
+  --text-secondary: #8aa7c2;
+  --neon-cyan: #66e7ff;
+  --neon-pink: #ff5ec7;
+  --neon-amber: #ffc857;
+  --success: #7ef29d;
+  --danger: #ff8d6b;
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+body {
+  min-height: 100vh;
+  color: var(--text-primary);
+  background: radial-gradient(circle at 10% 20%, rgba(255, 94, 199, 0.12), transparent 25%),
+    radial-gradient(circle at 80% 10%, rgba(102, 231, 255, 0.14), transparent 20%),
+    radial-gradient(circle at 70% 80%, rgba(255, 200, 87, 0.08), transparent 24%),
+    #06080f;
+  font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+}
+
+::selection {
+  background: rgba(102, 231, 255, 0.28);
+  color: #e8f6ff;
+}

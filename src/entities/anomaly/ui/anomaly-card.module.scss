@@ -1,0 +1,138 @@
+.card {
+  background: linear-gradient(145deg, rgba(18, 25, 46, 0.95), rgba(16, 23, 44, 0.7));
+  border: 1px solid rgba(102, 231, 255, 0.12);
+  border-radius: 14px;
+  box-sizing: border-box;
+  padding: 14px;
+  display: grid;
+  gap: 10px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3), 0 0 20px rgba(102, 231, 255, 0.08);
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+
+  div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    width: 100%;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+}
+
+.eyebrow {
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 11px;
+}
+
+.title {
+  font-size: 18px;
+  letter-spacing: 0.04em;
+  margin-top: 4px;
+}
+
+.badge {
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.threat-low {
+  color: #7ef29d;
+  border-color: rgba(126, 242, 157, 0.4);
+}
+
+.threat-medium {
+  color: var(--neon-amber);
+  border-color: rgba(255, 200, 87, 0.4);
+}
+
+.threat-high {
+  color: var(--neon-pink);
+  border-color: rgba(255, 94, 199, 0.45);
+  box-shadow: 0 0 10px rgba(255, 94, 199, 0.15);
+}
+
+.threat-critical {
+  color: #ff7b7b;
+  border-color: rgba(255, 123, 123, 0.4);
+  box-shadow: 0 0 14px rgba(255, 123, 123, 0.2);
+}
+
+.meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px 12px;
+  color: var(--text-secondary);
+  font-size: 13px;
+
+  dt {
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  dd {
+    color: var(--text-primary);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    margin: 0;
+  }
+}
+
+.status {
+  color: var(--neon-cyan);
+}
+
+.energyRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--text-secondary);
+
+  strong {
+    color: var(--text-primary);
+    letter-spacing: 0.04em;
+  }
+}
+
+.energyMeter {
+  position: relative;
+  width: 100%;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+}
+
+.energyFill {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, var(--neon-cyan), var(--neon-pink));
+  box-shadow: 0 0 16px rgba(102, 231, 255, 0.24);
+}
+
+@media (max-width: 540px) {
+  .header {
+    div {
+      gap: 8px;
+    }
+  }
+
+  .badge {
+    align-self: flex-start;
+  }
+
+  .energyRow {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+}
