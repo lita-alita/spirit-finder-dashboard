@@ -1,19 +1,23 @@
-import type { Anomaly } from '@/entities/anomaly/model/types';
+'use client';
+
+import { useMemo, useState } from 'react';
+import { useAnomalies, useDeploySquad } from '@/entities/anomaly/api';
 import { AnomalyCard } from '@/entities/anomaly/ui';
 import styles from '@/app/page.module.scss';
 
-type Props = {
-  anomalies: Anomaly[];
-  lastUpdated: string;
-};
-
-const formatTime = (value: string) =>
+const formatTime = (value: Date | number | string) =>
   new Intl.DateTimeFormat('en-GB', {
     hour: '2-digit',
     minute: '2-digit',
   }).format(new Date(value));
 
-export const HomePage = ({ anomalies, lastUpdated }: Props) => {
+export const HomePage = () => {
+  const { data = [], isPending, dataUpdatedAt, refetch } = useAnomalies();
+  const { mutate: deploySquad, isPending: isDeploying } = useDeploySquad();
+  const [pendingId, setPendingId] = useState<string | null>(null);
+
+  const anomalies = useMemo(() => data, [data]);
+
   const active = anomalies.filter((item) => item.status === 'active');
   const deploying = anomalies.filter((item) => item.status === 'deploying');
   const critical = anomalies.filter((item) => item.threatLevel === 'critical');
@@ -21,6 +25,22 @@ export const HomePage = ({ anomalies, lastUpdated }: Props) => {
   const timeline = [...anomalies].sort(
     (a, b) => new Date(b.lastSeenAt).getTime() - new Date(a.lastSeenAt).getTime(),
   );
+
+  const handleDeploy = (id?: string) => {
+    if (!id) return;
+    setPendingId(id);
+    deploySquad(id, {
+      onSettled: () => {
+        setPendingId(null);
+        refetch();
+      },
+    });
+  };
+
+  const handleQuickDeploy = () => {
+    const target = active[0] ?? anomalies[0];
+    handleDeploy(target?.id);
+  };
 
   return (
     <div className={styles.page}>
@@ -36,7 +56,12 @@ export const HomePage = ({ anomalies, lastUpdated }: Props) => {
             </div>
           </div>
           <div className={styles.ctaRow}>
-            <button className={styles.button} type="button">
+            <button
+              className={styles.button}
+              type="button"
+              disabled={isDeploying || isPending}
+              onClick={handleQuickDeploy}
+            >
               Deploy strike squad
             </button>
             <button className={`${styles.button} ${styles.secondary}`} type="button">
@@ -91,8 +116,14 @@ export const HomePage = ({ anomalies, lastUpdated }: Props) => {
 
           <div className={styles.anomalyGrid}>
             {anomalies.map((anomaly) => (
-              <AnomalyCard key={anomaly.id} anomaly={anomaly} />
+              <AnomalyCard
+                key={anomaly.id}
+                anomaly={anomaly}
+                onDeploy={handleDeploy}
+                disabled={pendingId !== null && pendingId !== anomaly.id}
+              />
             ))}
+            {anomalies.length === 0 && <p className={styles.empty}>All clear. Sensors on standby.</p>}
           </div>
         </section>
 
@@ -100,7 +131,7 @@ export const HomePage = ({ anomalies, lastUpdated }: Props) => {
           <div className={styles.panelHeader}>
             <div className={styles.panelTitle}>
               <h2>Rapid response queue</h2>
-              <span>Last updated {formatTime(lastUpdated)}</span>
+              <span>Last updated {dataUpdatedAt ? formatTime(dataUpdatedAt) : '—'}</span>
             </div>
             <span className={styles.badge}>ops queue</span>
           </div>

@@ -120,6 +120,34 @@
   box-shadow: 0 0 16px rgba(102, 231, 255, 0.24);
 }
 
+.actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.deployButton {
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(102, 231, 255, 0.3);
+  background: linear-gradient(120deg, rgba(102, 231, 255, 0.16), rgba(255, 94, 199, 0.12));
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 0 20px rgba(102, 231, 255, 0.18);
+    border-color: var(--border-strong);
+  }
+
+  &:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+  }
+}
+
 @media (max-width: 540px) {
   .header {
     div {

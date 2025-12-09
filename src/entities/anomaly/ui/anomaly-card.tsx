@@ -6,6 +6,8 @@ import styles from './anomaly-card.module.scss';
 
 type Props = {
   anomaly: Anomaly;
+  onDeploy: (id: string) => void;
+  disabled?: boolean;
 };
 
 const threatCopy: Record<Anomaly['threatLevel'], string> = {
@@ -15,8 +17,9 @@ const threatCopy: Record<Anomaly['threatLevel'], string> = {
   critical: 'Critical',
 };
 
-export const AnomalyCard = ({ anomaly }: Props) => {
+export const AnomalyCard = ({ anomaly, onDeploy, disabled = false }: Props) => {
   const threatColor = styles[`threat-${anomaly.threatLevel}`] ?? styles['threat-low'];
+  const isBusy = disabled || anomaly.status === 'deploying' || anomaly.status === 'contained';
 
   return (
     <article className={styles.card}>
@@ -36,6 +39,21 @@ export const AnomalyCard = ({ anomaly }: Props) => {
       </div>
       <div className={styles.energyMeter}>
         <span className={styles.energyFill} style={{ width: `${anomaly.energyLevel}%` }} />
+      </div>
+
+      <div className={styles.actions}>
+        <button
+          type="button"
+          className={styles.deployButton}
+          disabled={isBusy}
+          onClick={() => onDeploy(anomaly.id)}
+        >
+          {anomaly.status === 'deploying'
+            ? 'Deploying...'
+            : anomaly.status === 'contained'
+              ? 'Contained'
+              : 'Deploy strike squad'}
+        </button>
       </div>
     </article>
   );
