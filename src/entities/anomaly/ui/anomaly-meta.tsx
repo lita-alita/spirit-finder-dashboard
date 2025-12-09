@@ -16,7 +16,7 @@ export const AnomalyMeta = ({ anomaly, className }: Props) => {
   const metaClass = className ? `${styles.meta} ${className}` : styles.meta;
 
   return (
-    <div className={metaClass}>
+    <dl className={metaClass}>
       <div>
         <dt>District</dt>
         <dd>{anomaly.district}</dd>
@@ -29,6 +29,6 @@ export const AnomalyMeta = ({ anomaly, className }: Props) => {
         <dt>Last seen</dt>
         <dd>{formatTime(anomaly.lastSeenAt)}</dd>
       </div>
-    </div>
+    </dl>
   );
 };

@@ -1,8 +1,10 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { useMutation } from '@tanstack/react-query';
 import { useAnomalies, useDeploySquad } from '@/entities/anomaly/api';
 import { AnomalyCard } from '@/entities/anomaly/ui';
+import { pingSensorMesh } from '@/shared/api/sensors';
 import styles from '@/app/page.module.scss';
 
 const formatTime = (value: Date | number | string) =>
@@ -14,7 +16,19 @@ const formatTime = (value: Date | number | string) =>
 export const HomePage = () => {
   const { data = [], isPending, dataUpdatedAt, refetch } = useAnomalies();
   const { mutate: deploySquad, isPending: isDeploying } = useDeploySquad();
+  const {
+    mutate: pingSensors,
+    isPending: isPinging,
+    data: pingResult,
+  } = useMutation({
+    mutationFn: pingSensorMesh,
+    onSuccess: (result) => {
+      setLastPing(new Date(result.refreshedAt).getTime());
+      refetch();
+    },
+  });
   const [pendingId, setPendingId] = useState<string | null>(null);
+  const [lastPing, setLastPing] = useState<number | null>(null);
 
   const anomalies = useMemo(() => data, [data]);
 
@@ -42,6 +56,8 @@ export const HomePage = () => {
     handleDeploy(target?.id);
   };
 
+  const isBusy = isDeploying || isPending || isPinging;
+
   return (
     <div className={styles.page}>
       <section className={`${styles.shell} ${styles.masthead}`}>
@@ -59,14 +75,29 @@ export const HomePage = () => {
             <button
               className={styles.button}
               type="button"
-              disabled={isDeploying || isPending}
+              disabled={isBusy}
               onClick={handleQuickDeploy}
             >
               Deploy strike squad
             </button>
-            <button className={`${styles.button} ${styles.secondary}`} type="button">
-              Ping sensor mesh
+            <button
+              className={`${styles.button} ${styles.secondary}`}
+              type="button"
+              disabled={isBusy}
+              onClick={() => pingSensors()}
+            >
+              {isPinging ? 'Pinging...' : 'Ping sensor mesh'}
             </button>
+            {pingResult ? (
+              <span className={styles.pingStatus}>
+                {pingResult.status === 'online'
+                  ? 'Sensors stable'
+                  : pingResult.status === 'degraded'
+                    ? 'Sensors degraded'
+                    : 'Sensors offline'}
+                · {pingResult.latencyMs}ms · {pingResult.refreshedCount} nodes
+              </span>
+            ) : null}
           </div>
         </div>
 
@@ -120,6 +151,9 @@ export const HomePage = () => {
                 key={anomaly.id}
                 anomaly={anomaly}
                 onDeploy={handleDeploy}
+                highlight={
+                  lastPing !== null && new Date(anomaly.lastSeenAt).getTime() >= lastPing
+                }
                 disabled={pendingId !== null && pendingId !== anomaly.id}
               />
             ))}

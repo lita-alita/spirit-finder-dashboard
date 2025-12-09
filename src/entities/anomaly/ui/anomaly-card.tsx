@@ -7,6 +7,7 @@ import styles from './anomaly-card.module.scss';
 type Props = {
   anomaly: Anomaly;
   onDeploy: (id: string) => void;
+  highlight?: boolean;
   disabled?: boolean;
 };
 
@@ -17,12 +18,13 @@ const threatCopy: Record<Anomaly['threatLevel'], string> = {
   critical: 'Critical',
 };
 
-export const AnomalyCard = ({ anomaly, onDeploy, disabled = false }: Props) => {
+export const AnomalyCard = ({ anomaly, onDeploy, highlight = false, disabled = false }: Props) => {
   const threatColor = styles[`threat-${anomaly.threatLevel}`] ?? styles['threat-low'];
   const isBusy = disabled || anomaly.status === 'deploying' || anomaly.status === 'contained';
+  const cardClass = highlight ? `${styles.card} ${styles.fresh}` : styles.card;
 
   return (
-    <article className={styles.card}>
+    <article className={cardClass}>
       <header className={styles.header}>
         <div>
           <p className={styles.eyebrow}>#{anomaly.id}</p>

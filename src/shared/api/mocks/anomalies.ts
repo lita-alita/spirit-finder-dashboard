@@ -1,3 +1,5 @@
+import type { Anomaly } from '../anomaly.schema';
+
 export const anomaliesMock = [
   {
     id: 'knd-001',
@@ -44,4 +46,4 @@ export const anomaliesMock = [
     status: 'deploying',
     lastSeenAt: '2024-12-08T21:35:00Z',
   },
-];
+] satisfies Anomaly[];

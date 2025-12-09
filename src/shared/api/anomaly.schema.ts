@@ -8,6 +8,7 @@ export const anomalySchema = z.object({
   threatLevel: z.enum(['low', 'medium', 'high', 'critical']),
   status: z.enum(['active', 'contained', 'deploying']),
   lastSeenAt: z.string().datetime(),
+  resolvedAt: z.string().datetime().optional(),
 });
 
 export const anomaliesSchema = z.array(anomalySchema);

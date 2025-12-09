@@ -9,6 +9,24 @@
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3), 0 0 20px rgba(102, 231, 255, 0.08);
 }
 
+.fresh {
+  border-color: rgba(102, 231, 255, 0.35);
+  box-shadow: 0 10px 30px rgba(102, 231, 255, 0.22), 0 0 25px rgba(255, 94, 199, 0.14);
+  animation: pulse 1.6s ease-in-out 2;
+}
+
+@keyframes pulse {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
 .header {
   display: flex;
   flex-direction: column;

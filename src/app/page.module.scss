@@ -78,6 +78,15 @@
   gap: 12px;
 }
 
+.pingStatus {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  margin-left: auto;
+}
+
 .button {
   padding: 12px 16px;
   border-radius: 12px;
@@ -185,6 +194,15 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 14px;
+}
+
+.empty {
+  grid-column: 1 / -1;
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px dashed rgba(102, 231, 255, 0.3);
+  color: var(--text-secondary);
+  text-align: center;
 }
 
 .timeline {
