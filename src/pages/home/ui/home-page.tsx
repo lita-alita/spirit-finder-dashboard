@@ -31,6 +31,7 @@ export const HomePage = () => {
   const [lastPing, setLastPing] = useState<number | null>(null);
   const [ghostKey, setGhostKey] = useState<number | null>(null);
   const [ghostYOffset, setGhostYOffset] = useState<number>(40);
+  const [sortMode, setSortMode] = useState<'recent' | 'threat'>('recent');
 
   const anomalies = useMemo(() => data, [data]);
 
@@ -41,6 +42,20 @@ export const HomePage = () => {
   const timeline = [...anomalies].sort(
     (a, b) => new Date(b.lastSeenAt).getTime() - new Date(a.lastSeenAt).getTime(),
   );
+  const sortedAnomalies = useMemo(() => {
+    if (sortMode === 'threat') {
+      const threatOrder: Record<string, number> = {
+        critical: 3,
+        high: 2,
+        medium: 1,
+        low: 0,
+      };
+      return [...anomalies].sort((a, b) => threatOrder[b.threatLevel] - threatOrder[a.threatLevel]);
+    }
+    return [...anomalies].sort(
+      (a, b) => new Date(b.lastSeenAt).getTime() - new Date(a.lastSeenAt).getTime(),
+    );
+  }, [anomalies, sortMode]);
 
   const maybeShowGhost = () => {
     if (Math.random() < 0.6) {
@@ -169,11 +184,29 @@ export const HomePage = () => {
               <h2>Live anomaly board</h2>
               <span>Validated by Zod · Synced via TanStack Query pipeline</span>
             </div>
-            <span className={styles.badge}>real-time</span>
+            <div className={styles.panelActions}>
+              <div className={styles.sortToggle} role="group" aria-label="Sort anomalies">
+                <button
+                  type="button"
+                  className={sortMode === 'recent' ? styles.buttonActive : undefined}
+                  onClick={() => setSortMode('recent')}
+                >
+                  Recent
+                </button>
+                <button
+                  type="button"
+                  className={sortMode === 'threat' ? styles.buttonActive : undefined}
+                  onClick={() => setSortMode('threat')}
+                >
+                  Threat
+                </button>
+              </div>
+              <span className={styles.badge}>real-time</span>
+            </div>
           </div>
 
           <div className={styles.anomalyGrid}>
-            {anomalies.map((anomaly) => (
+            {sortedAnomalies.map((anomaly) => (
               <AnomalyCard
                 key={anomaly.id}
                 anomaly={anomaly}
