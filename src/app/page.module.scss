@@ -205,6 +205,40 @@
   text-align: center;
 }
 
+.ghostLayer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 10;
+}
+
+.ghost {
+  position: absolute;
+  left: -15%;
+  font-size: clamp(42px, 6vw, 72px);
+  filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.5))
+    drop-shadow(0 0 18px rgba(102, 231, 255, 0.4));
+  animation: ghostFloat 4.2s ease-in-out forwards;
+}
+
+@keyframes ghostFloat {
+  0% {
+    transform: translateX(0) translateY(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  50% {
+    transform: translateX(60vw) translateY(-4px);
+  }
+  100% {
+    transform: translateX(120vw) translateY(0);
+    opacity: 0;
+  }
+}
+
 .timeline {
   display: grid;
   gap: 12px;

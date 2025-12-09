@@ -29,6 +29,8 @@ export const HomePage = () => {
   });
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [lastPing, setLastPing] = useState<number | null>(null);
+  const [ghostKey, setGhostKey] = useState<number | null>(null);
+  const [ghostYOffset, setGhostYOffset] = useState<number>(40);
 
   const anomalies = useMemo(() => data, [data]);
 
@@ -40,8 +42,21 @@ export const HomePage = () => {
     (a, b) => new Date(b.lastSeenAt).getTime() - new Date(a.lastSeenAt).getTime(),
   );
 
+  const maybeShowGhost = () => {
+    if (Math.random() < 0.6) {
+      const offset = Math.floor(Math.random() * 60) + 10; // 10-70vh
+      setGhostYOffset(offset);
+      const key = Date.now();
+      setGhostKey(key);
+      setTimeout(() => {
+        setGhostKey((current) => (current === key ? null : current));
+      }, 4200);
+    }
+  };
+
   const handleDeploy = (id?: string) => {
     if (!id) return;
+    maybeShowGhost();
     setPendingId(id);
     deploySquad(id, {
       onSettled: () => {
@@ -60,6 +75,18 @@ export const HomePage = () => {
 
   return (
     <div className={styles.page}>
+      <div className={styles.ghostLayer} aria-hidden>
+        {ghostKey ? (
+          <div
+            key={ghostKey}
+            className={styles.ghost}
+            style={{ top: `${ghostYOffset}vh` }}
+            aria-hidden
+          >
+            👻
+          </div>
+        ) : null}
+      </div>
       <section className={`${styles.shell} ${styles.masthead}`}>
         <div className={styles.masthead__top}>
           <div className={styles.brand}>
